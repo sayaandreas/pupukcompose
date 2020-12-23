@@ -1,0 +1,2 @@
+rootProject.name = "Pupuk Compose"
+include ':app'
