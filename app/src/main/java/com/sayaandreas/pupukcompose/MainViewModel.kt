@@ -20,4 +20,8 @@ class MainViewModel: ViewModel() {
             _productList.value = response
         }
     }
+
+    fun getProductDetail(id: Int): Product? {
+        return productList.value?.find { it.id == id }
+    }
 }
