@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Pupuk Compose</string>
+    <string name="garden_route">Garden</string>
+    <string name="explore_route">Explore</string>
+    <string name="reminders_route">Reminders</string>
+    <string name="profile_routes">Profile</string>
 </resources>
