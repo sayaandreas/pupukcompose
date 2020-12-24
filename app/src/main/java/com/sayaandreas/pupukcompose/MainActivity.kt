@@ -148,20 +148,8 @@ fun Product(
 ) {
     Row(modifier = Modifier.clickable(onClick = { onClick(product) })) {
         Card(
-            Modifier.weight(1f).padding(start = 16.dp, end = 8.dp, top = 8.dp, bottom = 8.dp),
-            elevation = 4.dp
-        ) {
-            Column {
-                AsyncImage(product.image)
-                Column(modifier = Modifier.padding(8.dp)) {
-                    Text(text = product.title, fontSize = 14.sp, color = Color.Gray)
-                    Text(text = "USD ${product.price}", fontWeight = FontWeight.Bold)
-                }
-            }
-        }
-        Card(
-            Modifier.weight(1f).padding(start = 8.dp, end = 16.dp, top = 8.dp, bottom = 8.dp),
-            elevation = 4.dp
+            Modifier.padding(start = 1.dp, end = 1.dp, top = 8.dp, bottom = 8.dp),
+            elevation = 2.dp
         ) {
             Column {
                 AsyncImage(product.image)

@@ -1,10 +1,12 @@
 package com.sayaandreas.pupukcompose.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.*
@@ -12,6 +14,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -26,10 +29,14 @@ fun HomeScreen(navController: NavController, mainViewModel: MainViewModel) {
     val items: List<Product> by mainViewModel.productList.observeAsState(listOf())
     val textState = remember { mutableStateOf(TextFieldValue()) }
     var focusState = remember { mutableStateOf(FocusState.Inactive) }
+    val searchActive = focusState.value == FocusState.Active
+
     Column(modifier = Modifier.fillMaxWidth().fillMaxHeight().padding(16.dp)) {
-        Text(text = "Home")
+        if (!searchActive) {
+            Text(text = "Home")
+        }
         SearchBox(textState, onFocusChanged = { focusState.value = it })
-        if (focusState.value == FocusState.Inactive) {
+        if (!searchActive) {
             LazyColumn {
                 items(items) { product ->
                     Product(
@@ -50,13 +57,13 @@ fun HomeScreen(navController: NavController, mainViewModel: MainViewModel) {
 @Composable
 fun SearchBox(
     textState: MutableState<TextFieldValue>,
-    onFocusChanged: (state: FocusState) -> Unit
+    onFocusChanged: (state: FocusState) -> Unit,
 ) {
     TextField(
         value = textState.value,
         onValueChange = { textState.value = it },
         Modifier.onFocusChanged {
             onFocusChanged(it)
-        }
+        }.fillMaxWidth()
     )
 }
