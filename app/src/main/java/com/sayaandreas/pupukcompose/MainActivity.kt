@@ -6,12 +6,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.savedinstancestate.Saver
 import androidx.compose.runtime.savedinstancestate.rememberSavedInstanceState
 import androidx.compose.ui.Modifier
@@ -31,6 +32,7 @@ import androidx.navigation.compose.*
 import androidx.ui.tooling.preview.Preview
 import com.sayaandreas.pupukcompose.model.Product
 import com.sayaandreas.pupukcompose.ui.PupukComposeTheme
+import com.sayaandreas.pupukcompose.ui.screens.HomeScreen
 import com.sayaandreas.pupukcompose.utils.loadPicture
 
 class MainActivity : AppCompatActivity() {
@@ -83,7 +85,7 @@ fun HomeTab(navState: MutableState<Bundle>, mainViewModel: MainViewModel) {
         navController = navController,
         startDestination = Screen.Home.route
     ) {
-        composable(Screen.Home.route) { Home(navController, mainViewModel) }
+        composable(Screen.Home.route) { HomeScreen(navController, mainViewModel) }
         composable(
             Screen.Plant.route + "/{id}",
             arguments = listOf(navArgument("id") { type = NavType.IntType })
@@ -94,22 +96,6 @@ fun HomeTab(navState: MutableState<Bundle>, mainViewModel: MainViewModel) {
                     mainViewModel
                 )
             }
-        }
-    }
-}
-
-@Composable
-fun Home(navController: NavController, mainViewModel: MainViewModel) {
-    val items: List<Product> by mainViewModel.productList.observeAsState(listOf())
-    LazyColumn {
-        items(items) { product ->
-            Product(
-                product,
-                onClick = {
-                    navController.navigate(
-                        Screen.Plant.route + "/${it.id}"
-                    )
-                })
         }
     }
 }
@@ -202,13 +188,7 @@ fun BottomNavApp(
     PupukComposeTheme {
         Surface(color = MaterialTheme.colors.background) {
             Scaffold(
-                topBar = {
-                    TopAppBar(
-                        title = {
-                            Text(currentTab.route)
-                        }
-                    )
-                }, bodyContent = {
+                bodyContent = {
                     bodyContent(currentTab)
                 },
                 bottomBar = {
