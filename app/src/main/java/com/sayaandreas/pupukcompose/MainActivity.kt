@@ -17,6 +17,7 @@ import androidx.compose.runtime.savedinstancestate.rememberSavedInstanceState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.setContent
 import androidx.compose.ui.text.font.FontWeight
@@ -51,18 +52,18 @@ fun MultiBottomNavApp(mainViewModel: MainViewModel) {
 
 @Composable
 fun MultiNavTabContent(screen: Screen, mainViewModel: MainViewModel) {
-    val gardenNavState =
+    val homeNavState =
         rememberSavedInstanceState(saver = NavStateSaver()) { mutableStateOf(Bundle()) }
     when (screen) {
-        Screen.Garden -> GardenTab(gardenNavState, mainViewModel)
+        Screen.Home -> HomeTab(homeNavState, mainViewModel)
         Screen.Explore -> Explore()
-        Screen.Reminders -> Reminders()
+        Screen.Favorite -> Favorite()
         else -> Profile()
     }
 }
 
 @Composable
-fun GardenTab(navState: MutableState<Bundle>, mainViewModel: MainViewModel) {
+fun HomeTab(navState: MutableState<Bundle>, mainViewModel: MainViewModel) {
     val navController = rememberNavController()
 
     onCommit {
@@ -80,15 +81,25 @@ fun GardenTab(navState: MutableState<Bundle>, mainViewModel: MainViewModel) {
 
     NavHost(
         navController = navController,
-        startDestination = Screen.Garden.route
+        startDestination = Screen.Home.route
     ) {
-        composable(Screen.Garden.route) { Garden(navController, mainViewModel) }
-        composable(Screen.Plant.route) { Plant(it.arguments?.get("plantId") as String) }
+        composable(Screen.Home.route) { Home(navController, mainViewModel) }
+        composable(
+            Screen.Plant.route + "/{id}",
+            arguments = listOf(navArgument("id") { type = NavType.IntType })
+        ) { backStackEntry ->
+            backStackEntry.arguments?.getInt("id")?.let {
+                Plant(
+                    it,
+                    mainViewModel
+                )
+            }
+        }
     }
 }
 
 @Composable
-fun Garden(navController: NavController, mainViewModel: MainViewModel) {
+fun Home(navController: NavController, mainViewModel: MainViewModel) {
     val items: List<Product> by mainViewModel.productList.observeAsState(listOf())
     LazyColumn {
         items(items) { product ->
@@ -96,7 +107,7 @@ fun Garden(navController: NavController, mainViewModel: MainViewModel) {
                 product,
                 onClick = {
                     navController.navigate(
-                        Screen.Plant.routeWithPhrase(product.title)
+                        Screen.Plant.route + "/${it.id}"
                     )
                 })
         }
@@ -104,9 +115,10 @@ fun Garden(navController: NavController, mainViewModel: MainViewModel) {
 }
 
 @Composable
-fun Plant(plantId: String) {
+fun Plant(id: Int, mainViewModel: MainViewModel) {
+    val product = mainViewModel.getProductDetail(id)
     Column(modifier = Modifier.fillMaxSize().then(Modifier.padding(8.dp))) {
-        Text(text = plantId)
+        product?.let { Text(text = it.title) }
     }
 }
 
@@ -118,9 +130,9 @@ fun Explore() {
 }
 
 @Composable
-fun Reminders() {
+fun Favorite() {
     Column(modifier = Modifier.fillMaxSize().then(Modifier.padding(8.dp))) {
-        Text(text = Screen.Reminders.route)
+        Text(text = Screen.Favorite.route)
     }
 }
 
@@ -146,9 +158,9 @@ fun AsyncImage(url: String) {
 @Composable
 fun Product(
     product: Product,
-    onClick: () -> Unit
+    onClick: (product: Product) -> Unit
 ) {
-    Row(modifier = Modifier.clickable(onClick = { onClick() })) {
+    Row(modifier = Modifier.clickable(onClick = { onClick(product) })) {
         Card(
             Modifier.weight(1f).padding(start = 16.dp, end = 8.dp, top = 8.dp, bottom = 8.dp),
             elevation = 4.dp
@@ -183,7 +195,7 @@ fun BottomNavApp(
 ) {
     var currentTab by rememberSavedInstanceState(saver = ScreenSaver()) {
         mutableStateOf(
-            Screen.Garden
+            Screen.Home
         )
     }
 
@@ -202,26 +214,26 @@ fun BottomNavApp(
                 bottomBar = {
                     BottomNavigation {
                         BottomNavigationItem(
-                            icon = { Icon(Icons.Default.AccountCircle) },
-                            label = { Text("Garden") },
-                            selected = currentTab == Screen.Garden,
-                            onClick = { currentTab = Screen.Garden }
+                            icon = { Screen.Home.icon?.let { Icon(it) } },
+                            label = { Text(Screen.Home.route) },
+                            selected = currentTab == Screen.Home,
+                            onClick = { currentTab = Screen.Home }
                         )
                         BottomNavigationItem(
-                            icon = { Icon(Icons.Default.ShoppingCart) },
-                            label = { Text("Explore") },
+                            icon = { Screen.Explore.icon?.let { Icon(it) } },
+                            label = { Text(Screen.Explore.route) },
                             selected = currentTab == Screen.Explore,
                             onClick = { currentTab = Screen.Explore }
                         )
                         BottomNavigationItem(
-                            icon = { Icon(Icons.Default.List) },
-                            label = { Text("Reminders") },
-                            selected = currentTab == Screen.Reminders,
-                            onClick = { currentTab = Screen.Reminders }
+                            icon = { Screen.Favorite.icon?.let { Icon(it) } },
+                            label = { Text(Screen.Favorite.route) },
+                            selected = currentTab == Screen.Favorite,
+                            onClick = { currentTab = Screen.Favorite }
                         )
                         BottomNavigationItem(
-                            icon = { Icon(Icons.Default.List) },
-                            label = { Text("Profile") },
+                            icon = { Screen.Profile.icon?.let { Icon(it) } },
+                            label = { Text(Screen.Profile.route) },
                             selected = currentTab == Screen.Profile,
                             onClick = { currentTab = Screen.Profile }
                         )
@@ -236,14 +248,12 @@ fun NavBackStackEntry.getRoute(): String {
     return arguments?.getString(KEY_ROUTE) ?: ""
 }
 
-sealed class Screen(val route: String) {
-    object Garden : Screen("Garden")
-    object Explore : Screen("Explore")
-    object Reminders : Screen("Reminders")
-    object Profile : Screen("Profile")
-    object Plant : Screen("Plant/?plantId={plantId}") {
-        fun routeWithPhrase(plantId: String): String = route.replace("{plantId}", plantId)
-    }
+sealed class Screen(val route: String, val icon: ImageVector? = null) {
+    object Home : Screen("Home", Icons.Default.Home)
+    object Explore : Screen("Explore", Icons.Default.Search)
+    object Favorite : Screen("Favorite", Icons.Default.Favorite)
+    object Profile : Screen("Profile", Icons.Default.AccountCircle)
+    object Plant : Screen("Plant")
 
     fun saveState(): Bundle {
         return bundleOf(KEY_SCREEN to route)
@@ -252,12 +262,12 @@ sealed class Screen(val route: String) {
     companion object {
         fun restoreState(bundle: Bundle): Screen {
             return when (bundle.getString(KEY_SCREEN, Profile.route)) {
-                Garden.route -> Garden
+                Home.route -> Home
                 Plant.route -> Plant
                 Explore.route -> Explore
-                Reminders.route -> Reminders
+                Favorite.route -> Favorite
                 Profile.route -> Profile
-                else -> Garden
+                else -> Home
             }
         }
 
