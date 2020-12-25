@@ -20,9 +20,10 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.navigate
 import com.sayaandreas.pupukcompose.MainViewModel
-import com.sayaandreas.pupukcompose.MovieCard
 import com.sayaandreas.pupukcompose.Screen
 import com.sayaandreas.pupukcompose.model.Movie
+import com.sayaandreas.pupukcompose.ui.components.MovieCard
+import com.sayaandreas.pupukcompose.ui.components.SearchBox
 
 data class SectionItem(
     val title: String,
@@ -74,20 +75,6 @@ fun HomeScreen(navController: NavController, mainViewModel: MainViewModel) {
             Section(title = it.title, items = it.items, onItemClick = it.onItemClick, isLast = it.isLast)
         }
     }
-}
-
-@Composable
-fun SearchBox(
-    textState: MutableState<TextFieldValue>,
-    onFocusChanged: (state: FocusState) -> Unit,
-) {
-    TextField(
-        value = textState.value,
-        onValueChange = { textState.value = it },
-        Modifier.onFocusChanged {
-            onFocusChanged(it)
-        }.fillMaxWidth()
-    )
 }
 
 @Composable

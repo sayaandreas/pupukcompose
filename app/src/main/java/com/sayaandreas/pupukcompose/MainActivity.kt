@@ -142,27 +142,6 @@ fun AsyncImage(url: String) {
 }
 
 @Composable
-fun MovieCard(
-    movie: Movie,
-    onClick: (movie: Movie) -> Unit
-) {
-    Row(modifier = Modifier.clickable(onClick = { onClick(movie) })) {
-        Card(
-            Modifier.padding(start = 1.dp, end = 1.dp, top = 8.dp, bottom = 8.dp),
-            elevation = 2.dp
-        ) {
-            Column {
-                AsyncImage("https://image.tmdb.org/t/p/w500" + movie.poster_path)
-                Column(modifier = Modifier.padding(8.dp)) {
-                    Text(text = movie.title, fontSize = 14.sp, color = Color.Gray)
-                    Text(text = "Rating ${movie.vote_average}", fontWeight = FontWeight.Bold)
-                }
-            }
-        }
-    }
-}
-
-@Composable
 fun BottomNavApp(
     bodyContent: @Composable (Screen) -> Unit
 ) {
