@@ -30,7 +30,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavType
 import androidx.navigation.compose.*
 import androidx.ui.tooling.preview.Preview
-import com.sayaandreas.pupukcompose.model.Product
+import com.sayaandreas.pupukcompose.model.Movie
 import com.sayaandreas.pupukcompose.ui.PupukComposeTheme
 import com.sayaandreas.pupukcompose.ui.screens.HomeScreen
 import com.sayaandreas.pupukcompose.utils.loadPicture
@@ -87,11 +87,11 @@ fun HomeTab(navState: MutableState<Bundle>, mainViewModel: MainViewModel) {
     ) {
         composable(Screen.Home.route) { HomeScreen(navController, mainViewModel) }
         composable(
-            Screen.Plant.route + "/{id}",
+            Screen.MovieDetail.route + "/{id}",
             arguments = listOf(navArgument("id") { type = NavType.IntType })
         ) { backStackEntry ->
             backStackEntry.arguments?.getInt("id")?.let {
-                Plant(
+                MovieDetail(
                     it,
                     mainViewModel
                 )
@@ -101,10 +101,10 @@ fun HomeTab(navState: MutableState<Bundle>, mainViewModel: MainViewModel) {
 }
 
 @Composable
-fun Plant(id: Int, mainViewModel: MainViewModel) {
-    val product = mainViewModel.getProductDetail(id)
+fun MovieDetail(id: Int, mainViewModel: MainViewModel) {
+    val movie = mainViewModel.getMovieDetail(id)
     Column(modifier = Modifier.fillMaxSize().then(Modifier.padding(8.dp))) {
-        product?.let { Text(text = it.title) }
+        movie?.let { Text(text = it.title) }
     }
 }
 
@@ -142,25 +142,24 @@ fun AsyncImage(url: String) {
 }
 
 @Composable
-fun Product(
-    product: Product,
-    onClick: (product: Product) -> Unit
+fun MovieCard(
+    movie: Movie,
+    onClick: (movie: Movie) -> Unit
 ) {
-    Row(modifier = Modifier.clickable(onClick = { onClick(product) })) {
+    Row(modifier = Modifier.clickable(onClick = { onClick(movie) })) {
         Card(
             Modifier.padding(start = 1.dp, end = 1.dp, top = 8.dp, bottom = 8.dp),
             elevation = 2.dp
         ) {
             Column {
-                AsyncImage(product.image)
+                AsyncImage("https://image.tmdb.org/t/p/w500" + movie.poster_path)
                 Column(modifier = Modifier.padding(8.dp)) {
-                    Text(text = product.title, fontSize = 14.sp, color = Color.Gray)
-                    Text(text = "USD ${product.price}", fontWeight = FontWeight.Bold)
+                    Text(text = movie.title, fontSize = 14.sp, color = Color.Gray)
+                    Text(text = "Rating ${movie.vote_average}", fontWeight = FontWeight.Bold)
                 }
             }
         }
     }
-
 }
 
 @Composable
@@ -221,7 +220,7 @@ sealed class Screen(val route: String, val icon: ImageVector? = null) {
     object Explore : Screen("Explore", Icons.Default.Search)
     object Favorite : Screen("Favorite", Icons.Default.Favorite)
     object Profile : Screen("Profile", Icons.Default.AccountCircle)
-    object Plant : Screen("Plant")
+    object MovieDetail : Screen("MovieDetail")
 
     fun saveState(): Bundle {
         return bundleOf(KEY_SCREEN to route)
@@ -231,7 +230,7 @@ sealed class Screen(val route: String, val icon: ImageVector? = null) {
         fun restoreState(bundle: Bundle): Screen {
             return when (bundle.getString(KEY_SCREEN, Profile.route)) {
                 Home.route -> Home
-                Plant.route -> Plant
+                MovieDetail.route -> MovieDetail
                 Explore.route -> Explore
                 Favorite.route -> Favorite
                 Profile.route -> Profile

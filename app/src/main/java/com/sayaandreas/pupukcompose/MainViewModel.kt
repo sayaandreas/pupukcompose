@@ -4,24 +4,41 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sayaandreas.pupukcompose.model.Product
-import com.sayaandreas.pupukcompose.repository.ProductRepository
+import com.sayaandreas.pupukcompose.model.Movie
+import com.sayaandreas.pupukcompose.repository.TMDBRepository
 import kotlinx.coroutines.launch
 
 class MainViewModel: ViewModel() {
+    private val tmdbRepo = TMDBRepository()
 
-    private val repository = ProductRepository()
-    private var _productList = MutableLiveData(listOf<Product>())
-    val productList: LiveData<List<Product>> = _productList
+    private var _nowPlayingList = MutableLiveData(listOf<Movie>())
+    val nowPlayingList: LiveData<List<Movie>> = _nowPlayingList
+
+    private var _popularList = MutableLiveData(listOf<Movie>())
+    val popularList: LiveData<List<Movie>> = _popularList
+
+    private var _upcomingList = MutableLiveData(listOf<Movie>())
+    val upcomingList: LiveData<List<Movie>> = _upcomingList
+
+    private var _topRatedList = MutableLiveData(listOf<Movie>())
+    val topRatedList: LiveData<List<Movie>> = _topRatedList
+
 
     init {
         viewModelScope.launch {
-            val response = repository.getProducts()
-            _productList.value = response
+            val np = tmdbRepo.getNowPlaying()
+            val p = tmdbRepo.getPopular()
+            val u = tmdbRepo.getUpcoming()
+            val tr = tmdbRepo.getTopRated()
+
+            _nowPlayingList.value = np.results.take(7)
+            _popularList.value = p.results.take(7)
+            _upcomingList.value = u.results.take(7)
+            _topRatedList.value = tr.results.take(7)
         }
     }
 
-    fun getProductDetail(id: Int): Product? {
-        return productList.value?.find { it.id == id }
+    fun getMovieDetail(id: Int): Movie? {
+        return _nowPlayingList.value?.find { it.id == id }
     }
 }
