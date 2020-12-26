@@ -130,12 +130,12 @@ fun Profile() {
 }
 
 @Composable
-fun AsyncImage(url: String) {
+fun AsyncImage(url: String, modifier: Modifier = Modifier) {
     val image = loadPicture(url, defaultImage = R.drawable.ic_launcher_background).value
     image?.let { img ->
         Image(
             bitmap = img.asImageBitmap(),
-            modifier = Modifier.fillMaxWidth().preferredHeight(250.dp),
+            modifier = Modifier.fillMaxWidth().then(modifier),
             contentScale = ContentScale.Inside
         )
     }
@@ -155,7 +155,9 @@ fun BottomNavApp(
         Surface(color = MaterialTheme.colors.background) {
             Scaffold(
                 bodyContent = {
-                    bodyContent(currentTab)
+                    Column(modifier = Modifier.fillMaxSize().padding(bottom = 56.dp)) {
+                        bodyContent(currentTab)
+                    }
                 },
                 bottomBar = {
                     BottomNavigation {

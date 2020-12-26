@@ -3,19 +3,16 @@ package com.sayaandreas.pupukcompose.ui.screens
 import androidx.compose.foundation.ScrollableColumn
 import androidx.compose.foundation.ScrollableRow
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.BasicText
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.material.TextField
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusState
-import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.navigate
@@ -28,8 +25,7 @@ import com.sayaandreas.pupukcompose.ui.components.SearchBox
 data class SectionItem(
     val title: String,
     val items: List<Movie>,
-    val onItemClick: (id: Int) -> Unit,
-    val isLast: Boolean
+    val onItemClick: (id: Int) -> Unit
 )
 
 @Composable
@@ -44,22 +40,22 @@ fun HomeScreen(navController: NavController, mainViewModel: MainViewModel) {
             navController.navigate(
                 Screen.MovieDetail.route + "/${it}"
             )
-        }, isLast = false),
+        }),
         SectionItem(title = "What's Popular", items = popular, onItemClick = {
             navController.navigate(
                 Screen.MovieDetail.route + "/${it}"
             )
-        }, isLast = false),
+        }),
         SectionItem(title = "Upcoming", items = upcoming, onItemClick = {
             navController.navigate(
                 Screen.MovieDetail.route + "/${it}"
             )
-        }, isLast = false),
+        }),
         SectionItem(title = "Top Rated", items = topRated, onItemClick = {
             navController.navigate(
                 Screen.MovieDetail.route + "/${it}"
             )
-        }, isLast = true),
+        }),
     )
 
     val textState = remember { mutableStateOf(TextFieldValue()) }
@@ -71,8 +67,12 @@ fun HomeScreen(navController: NavController, mainViewModel: MainViewModel) {
             Text(text = "Home")
         }
         SearchBox(textState, onFocusChanged = { focusState.value = it })
-        sections.map {
-            Section(title = it.title, items = it.items, onItemClick = it.onItemClick, isLast = it.isLast)
+        sections.mapIndexed { index, it ->
+            if (index == 0) {
+                Spacer(modifier = Modifier.height(24.dp))
+            }
+            Section(title = it.title, items = it.items, onItemClick = it.onItemClick)
+            Spacer(modifier = Modifier.height(24.dp))
         }
     }
 }
@@ -81,21 +81,17 @@ fun HomeScreen(navController: NavController, mainViewModel: MainViewModel) {
 fun Section(
     title: String,
     items: List<Movie>,
-    onItemClick: (id: Int) -> Unit,
-    isLast: Boolean
+    onItemClick: (id: Int) -> Unit
 ) {
-    BasicText(
+    Text(
+        modifier = Modifier.padding(start = 16.dp, bottom = 16.dp),
         text = title,
-        style = TextStyle(
-            color = Color.Black,
-            fontWeight = FontWeight.SemiBold,
-            fontSize = TextUnit.Companion.Sp(18)
-        )
+        style = MaterialTheme.typography.h6,
     )
-    ScrollableRow(modifier = Modifier.padding(bottom = if(isLast) 58.dp else 0.dp)) {
+    ScrollableRow(contentPadding = PaddingValues(start = 16.dp, end = 16.dp)) {
         items.mapIndexed { index, movie ->
             val isLast = index == items.size-1;
-            Row(modifier = Modifier.padding(end = if (isLast) 0.dp else 10.dp)) {
+            Row(modifier = Modifier.padding(end = if (isLast) 0.dp else 16.dp)) {
                 MovieCard(
                     movie, onClick = {
                         onItemClick(it.id)
