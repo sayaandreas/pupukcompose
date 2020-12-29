@@ -4,7 +4,6 @@ import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -16,23 +15,20 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.savedinstancestate.Saver
 import androidx.compose.runtime.savedinstancestate.rememberSavedInstanceState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.setContent
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.core.os.bundleOf
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.NavType
 import androidx.navigation.compose.*
 import androidx.ui.tooling.preview.Preview
-import com.sayaandreas.pupukcompose.model.Movie
 import com.sayaandreas.pupukcompose.ui.PupukComposeTheme
 import com.sayaandreas.pupukcompose.ui.screens.HomeScreen
+import com.sayaandreas.pupukcompose.ui.screens.MovieScreen
 import com.sayaandreas.pupukcompose.utils.loadPicture
 
 class MainActivity : AppCompatActivity() {
@@ -91,20 +87,12 @@ fun HomeTab(navState: MutableState<Bundle>, mainViewModel: MainViewModel) {
             arguments = listOf(navArgument("id") { type = NavType.IntType })
         ) { backStackEntry ->
             backStackEntry.arguments?.getInt("id")?.let {
-                MovieDetail(
+                MovieScreen(
                     it,
                     mainViewModel
                 )
             }
         }
-    }
-}
-
-@Composable
-fun MovieDetail(id: Int, mainViewModel: MainViewModel) {
-    val movie = mainViewModel.getMovieDetail(id)
-    Column(modifier = Modifier.fillMaxSize().then(Modifier.padding(8.dp))) {
-        movie?.let { Text(text = it.title) }
     }
 }
 
@@ -136,7 +124,7 @@ fun AsyncImage(url: String, modifier: Modifier = Modifier) {
         Image(
             bitmap = img.asImageBitmap(),
             modifier = Modifier.fillMaxWidth().then(modifier),
-            contentScale = ContentScale.Inside
+            contentScale = ContentScale.FillWidth
         )
     }
 }
